@@ -43,4 +43,9 @@ public class SecurityConfigurations {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public org.springframework.boot.CommandLineRunner gerarHash(PasswordEncoder encoder) {
+        return args -> System.out.println(">>> USE ESTE HASH NO BANCO: " + encoder.encode("123456"));
+    }
 }

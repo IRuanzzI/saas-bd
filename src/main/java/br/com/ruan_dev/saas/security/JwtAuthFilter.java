@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -23,7 +24,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        var token = this.recoverToken(request);
+        // Substituído 'var' por 'String'
+        String token = this.recoverToken(request);
 
         if (token != null) {
             try {
@@ -36,8 +38,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     TenantContext.setCurrentTenant(tenantId);
                 }
 
-                var authorities = Collections.singletonList(new SimpleGrantedAuthority(cargo));
-                var authentication = new UsernamePasswordAuthenticationToken(nome, null, authorities);
+                // Substituído 'var' pelos tipos explícitos
+                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(cargo));
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(nome, null, authorities);
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
                 System.out.println("Token inválido ou expirado: " + e.getMessage());
@@ -52,7 +56,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private String recoverToken(HttpServletRequest request) {
-        var authHeader = request.getHeader("Authorization");
+        // Substituído 'var' por 'String'
+        String authHeader = request.getHeader("Authorization");
         if (authHeader == null) return null;
         return authHeader.replace("Bearer ", "");
     }
