@@ -3,9 +3,15 @@ package br.com.ruan_dev.saas.models;
 //O CLIENTE DO USUARIO
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
+import org.springframework.context.annotation.ComponentScan;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Table(name = "Cliente")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = Long.class))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Cliente {
 
     @Id

@@ -3,9 +3,14 @@ package br.com.ruan_dev.saas.models;
 //Dono do negocio
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 @Entity
 @Table(name = "Usuario")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = Long.class))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Usuario {
 
     @Id

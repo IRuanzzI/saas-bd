@@ -32,7 +32,7 @@ public class AuthService {
 
 
         String token = jwtTokenProvider.generateToken(usuario);
-
+        System.out.println(">>> TOKEN JWT GERADO: " + token);
         // 4. Devolve o payload completo para o Flutter
         return new AuthResponse(
                 token,
@@ -40,5 +40,6 @@ public class AuthService {
                 usuario.getRole(),
                 usuario.getTenant().getId()
         );
+
     }
 }

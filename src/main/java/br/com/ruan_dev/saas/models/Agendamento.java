@@ -2,9 +2,14 @@ package br.com.ruan_dev.saas.models;
 
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 @Entity
 @Table(name = "Agendamento")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = Long.class))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Agendamento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
