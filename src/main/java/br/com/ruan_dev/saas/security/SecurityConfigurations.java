@@ -43,9 +43,10 @@ public class SecurityConfigurations {
                             .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
                         .requestMatchers(HttpMethod.POST, "/api/v1/agendamentos/create")
                             .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
-                        .anyRequest().authenticated()
+
                         .requestMatchers(HttpMethod.POST, "/api/v1/clientes/create")
                             .hasAnyAuthority("ADMIN", "USUARIO")
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
