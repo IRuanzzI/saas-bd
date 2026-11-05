@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfigurations {
 
     @Autowired
@@ -28,11 +30,22 @@ public class SecurityConfigurations {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/clientes"  ).hasAnyAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/clientes").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/clientes/edit/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/clientes/delete/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/tenants/register").hasAnyAuthority("MASTER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/create").hasAnyAuthority("ADMIN")
-
+                        .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/create").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/agendamentos", "/api/v1/agendamentos/hoje")
+                            .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/agendamentos/edit/**")
+                            .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/agendamentos/delete/**")
+                            .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/agendamentos/create")
+                            .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
                         .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/clientes/create")
+                            .hasAnyAuthority("ADMIN", "USUARIO")
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
