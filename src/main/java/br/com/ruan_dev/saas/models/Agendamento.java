@@ -32,6 +32,17 @@ public class Agendamento {
 
     private String status;
 
+    @Column(name = "lembrete_enivado")
+    private Boolean lembreteEnviado = false;
+
+    public Boolean getLembreteEnviado() {
+        return lembreteEnviado;
+    }
+
+    public void setLembreteEnviado(Boolean lembreteEnviado) {
+        this.lembreteEnviado = lembreteEnviado;
+    }
+
     public Long getId() {
         return id;
     }

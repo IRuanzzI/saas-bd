@@ -46,6 +46,10 @@ public class SecurityConfigurations {
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/clientes/create")
                             .hasAnyAuthority("ADMIN", "USUARIO")
+
+                        .requestMatchers(HttpMethod.POST, "/api/v1/webhooks/evolution").permitAll()
+
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
