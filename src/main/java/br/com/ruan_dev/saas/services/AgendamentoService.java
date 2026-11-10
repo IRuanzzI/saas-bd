@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AgendamentoService {
@@ -93,23 +94,36 @@ public class AgendamentoService {
     }
 
     @Transactional
-    public void atualizarStatusAgendamento(String telefone, String novoStatus) {
-        agendamentoRepository.findProximoAgendamentoPorTelefone(telefone)
-                .ifPresent(agendamento -> {
+    public void atualizarStatusAgendamento(String telefoneCliente, String novoStatus) {
 
+        Optional<Agendamento> agendamentoOpt = agendamentoRepository.findProximoAgendamentoPorTelefone(telefoneCliente);
 
-                    agendamento.setStatus(novoStatus);
-                    agendamentoRepository.save(agendamento);
+        if (agendamentoOpt.isPresent()) {
+            Agendamento agendamento = agendamentoOpt.get();
 
+            agendamento.setStatus(novoStatus);
+            agendamentoRepository.save(agendamento);
 
-                    String nomeInstancia = "tenant_" + agendamento.getTenant().getId();
-                    String mensagem = novoStatus.equals("CANCELADO")
-                            ? "Tudo certo! Seu agendamento foi cancelado com sucesso. Agradecemos por avisar."
-                            : "Perfeito! Seu agendamento está confirmado. Te esperamos!";
+            String nomeCliente = agendamento.getCliente().getNome();
+            String nomeInstancia = "tenant_" + agendamento.getTenant().getId();
+            String mensagemResposta = "";
 
-                    whatsAppService.enviarMensagemTexto(nomeInstancia, telefone, mensagem);
+            if (novoStatus.equals("CONFIRMADO")) {
+                mensagemResposta = "✅ Olá " + nomeCliente + ", seu agendamento foi *confirmado* com sucesso! Te esperamos no horário marcado.";
+            } else if (novoStatus.equals("CANCELADO")) {
+                mensagemResposta = "❌ Olá " + nomeCliente + ", seu agendamento foi *cancelado*. Se precisar marcar um novo horário no futuro, é só nos chamar aqui!";
+            }
 
-                    System.out.println("Status do agendamento alterado para " + novoStatus + " via resposta do cliente: " + telefone);
-                });
+            try {
+                whatsAppService.enviarMensagemTexto(nomeInstancia, telefoneCliente, mensagemResposta);
+                System.out.println("Feedback de " + novoStatus + " enviado para o cliente " + nomeCliente);
+            } catch (Exception e) {
+                System.err.println("O status foi atualizado, mas falhou ao enviar o feedback no WhatsApp: " + e.getMessage());
+            }
+
+        } else {
+            System.out.println("Nenhum agendamento pendente encontrado para o telefone: " + telefoneCliente);
+        }
     }
+
 }
