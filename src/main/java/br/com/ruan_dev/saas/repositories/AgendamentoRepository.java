@@ -46,4 +46,6 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
                                              @Param("desde") String desde);
 
     List<Agendamento> findByClienteId(Long clienteId);
+
+    List<Agendamento> searchByClienteAndStatus(Long clienteId, String status);
 }

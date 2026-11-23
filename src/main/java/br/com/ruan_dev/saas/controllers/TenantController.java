@@ -26,7 +26,7 @@ public class TenantController {
     @Autowired
     private AuditoriaService auditoriaService;
 
-    // ---- painel do MASTER
+
 
     @GetMapping
     @PreAuthorize("hasAuthority('MASTER')")

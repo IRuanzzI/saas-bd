@@ -2,6 +2,7 @@ package br.com.ruan_dev.saas.services;
 
 import br.com.ruan_dev.saas.exceptions.NaoEncontradoException;
 import br.com.ruan_dev.saas.exceptions.NegocioException;
+import br.com.ruan_dev.saas.dto.PainelDTOs.NotificacaoResumo;
 import br.com.ruan_dev.saas.models.Agendamento;
 import br.com.ruan_dev.saas.models.Cliente;
 import br.com.ruan_dev.saas.repositories.AgendamentoRepository;
@@ -60,6 +61,7 @@ public class AgendamentoService {
     public Agendamento editarAgendamento(Long id, Agendamento dados) {
         Agendamento existente = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new NaoEncontradoException("Agendamento não encontrado com o ID: " + id));
+        String statusAnterior = existente.getStatus();
 
         if (dados.getCliente() != null && dados.getCliente().getId() != null) {
             existente.setCliente(buscarCliente(dados.getCliente().getId()));
@@ -85,7 +87,15 @@ public class AgendamentoService {
             existente.setLembreteEnviado(false);
         }
 
-        return agendamentoRepository.save(existente);
+        Agendamento salvo = agendamentoRepository.save(existente);
+
+        if (statusAnterior == null
+                ? salvo.getStatus() != null
+                : !statusAnterior.equals(salvo.getStatus())) {
+            notificarAlteracaoStatus(salvo, statusAnterior);
+        }
+
+        return salvo;
     }
 
     public void deletar(Long id) {
@@ -199,6 +209,71 @@ public class AgendamentoService {
 
     public List<Agendamento> listarAgendamentosPorCliente(Long clienteId) {
         return agendamentoRepository.findByClienteId(clienteId);
+    }
+
+    public NotificacaoResumo resumoNotificacoes() {
+        List<Agendamento> hoje = listarAgendamentosHoje();
+
+        long pendentes = contarStatus(hoje, "PENDENTE");
+        long confirmados = contarStatus(hoje, "CONFIRMADO");
+        long cancelados = contarStatus(hoje, "CANCELADO");
+        long finalizados = contarStatus(hoje, "FINALIZADO");
+        long lembretesEnviados = hoje.stream()
+                .filter(Agendamento::getLembreteEnviado)
+                .count();
+
+        long lembretesPendentes = hoje.stream()
+                .filter(a -> "PENDENTE".equals(a.getStatus()))
+                .filter(a -> !Boolean.TRUE.equals(a.getLembreteEnviado()))
+                .count();
+
+        return new NotificacaoResumo(
+                hoje.size(),
+                pendentes,
+                confirmados,
+                cancelados,
+                finalizados,
+                lembretesEnviados,
+                lembretesPendentes);
+    }
+
+    private long contarStatus(List<Agendamento> agendamentos, String status) {
+        return agendamentos.stream()
+                .filter(a -> status.equalsIgnoreCase(a.getStatus()))
+                .count();
+    }
+
+    private void notificarAlteracaoStatus(Agendamento agendamento, String statusAnterior) {
+        try {
+            String novoStatus = agendamento.getStatus();
+            String textoStatus;
+            if ("CONFIRMADO".equalsIgnoreCase(novoStatus)) {
+                textoStatus = "confirmado";
+            } else if ("CANCELADO".equalsIgnoreCase(novoStatus)) {
+                textoStatus = "cancelado";
+            } else if ("FINALIZADO".equalsIgnoreCase(novoStatus)) {
+                textoStatus = "finalizado";
+            } else {
+                textoStatus = novoStatus.toLowerCase();
+            }
+
+            whatsAppService.enviarMensagemTexto(
+                    WhatsAppService.nomeInstancia(agendamento.getTenant().getId()),
+                    agendamento.getCliente().getTelefone(),
+                    "Olá, " + agendamento.getCliente().getNome()
+                            + ". Seu agendamento foi alterado de " + statusAnterior
+                            + " para " + textoStatus + ".");
+
+            auditoria.registrar(
+                    agendamento.getTenant().getId(),
+                    usuarioService.obterUsuarioAtual().getNome(),
+                    "AGENDAMENTO_STATUS_ALTERADO",
+                    agendamento.getCliente().getNome() + " · "
+                            + statusAnterior + " -> " + novoStatus);
+        } catch (Exception e) {
+            System.err.println("Falha ao notificar alteração de status do agendamento "
+                    + agendamento.getId() + ": " + e.getMessage());
+        }
     }
 
     private Cliente buscarCliente(Long id) {

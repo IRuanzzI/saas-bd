@@ -65,6 +65,8 @@ public class SecurityConfigurations {
                             .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
                         .requestMatchers(HttpMethod.POST, "/api/v1/agendamentos/create")
                             .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/notificacoes")
+                            .hasAnyAuthority("MASTER", "ADMIN", "USUARIO")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/webhooks/evolution").permitAll()
 

@@ -54,4 +54,14 @@ public final class PainelDTOs {
     public record WhatsAppQr(String instancia, String estado, boolean conectado,
                              String qrBase64, String codigoPareamento) {
     }
+
+    public record NotificacaoResumo(
+            long atendimentosHoje,
+            long pendentes,
+            long confirmados,
+            long cancelados,
+            long finalizados,
+            long lembretesEnviados,
+            long lembretesPendentes) {
+    }
 }

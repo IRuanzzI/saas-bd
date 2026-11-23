@@ -3,7 +3,6 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
-//A EMPRESA
 
 @Entity
 @Table(name = "Tenant")
@@ -15,16 +14,16 @@ public class Tenant {
 
     private String nome_fantasia;
 
-    // CNPJ/CPF: não pode haver duas empresas com o mesmo documento.
+
     @Column(unique = true)
     private String documento;
 
     private Boolean ativo = false;
 
-    // Plano contratado (texto livre: TESTE, BASICO, PROFISSIONAL...).
+
     private String plano;
 
-    // Último dia de acesso. Depois dele a empresa é tratada como vencida.
+
     private LocalDate venceEm;
 
     public Long getId() {

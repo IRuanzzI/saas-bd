@@ -155,7 +155,7 @@ public class RespostaWhatsAppService {
         return d.substring(0, 2) + d.substring(d.length() - 8);
     }
 
-    /** O nome do perfil do WhatsApp (ex.: "Maria Diniz💕") combina com o do cliente (ex.: "Maria")? */
+
     public static boolean nomeCombina(String nomeCliente, String pushName) {
         Set<String> a = palavras(nomeCliente);
         Set<String> b = palavras(pushName);

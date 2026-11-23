@@ -45,7 +45,7 @@ public class LembreteJob {
 
                 String mensagem = "Lembrete: Olá " + agendamento.getCliente().getNome() +
                         ", você tem um agendamento (" + dataFormatada + "). " +
-                        "Responda 'S' para confirmar ou 'N' para cancelar.";
+                        "Responda 'Sim/S' para confirmar ou 'Não/N' para cancelar.";
 
                 String idMensagem = whatsAppService.enviarMensagemTexto(
                         nomeInstancia,
@@ -70,5 +70,7 @@ public class LembreteJob {
             }
         }
     }
+
+
 
 }
