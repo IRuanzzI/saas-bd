@@ -17,7 +17,7 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USUARIO')")
     public ResponseEntity<List<Cliente>> listarClientes(){
         List<Cliente> clientes = clienteService.listClientes();
         return ResponseEntity.ok(clientes);
@@ -38,7 +38,7 @@ public class ClienteController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USUARIO')")
     public ResponseEntity<Cliente> criarCliente(@RequestBody Cliente cliente) {
         Cliente cliente1 = clienteService.createCliente(cliente);
         return ResponseEntity.ok(cliente1);

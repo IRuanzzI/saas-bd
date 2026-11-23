@@ -2,6 +2,8 @@ package br.com.ruan_dev.saas.models;
 
 //Dono do negocio
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
@@ -17,15 +19,36 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // A empresa não entra nem sai do JSON: vem sempre do token.
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
     private String nome;
+
+    // Nunca devolver o hash da senha nas respostas.
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
+
+    // O login busca por e-mail: não pode haver dois usuários com o mesmo.
+    @Column(unique = true)
     private String email;
 
     private String role;
+
+    // Senha provisória (cadastro ou redefinição): precisa ser trocada no
+    // próximo acesso. Nulo conta como "não".
+    @JsonIgnore
+    private Boolean precisaTrocarSenha;
+
+    public Boolean getPrecisaTrocarSenha() {
+        return precisaTrocarSenha;
+    }
+
+    public void setPrecisaTrocarSenha(Boolean precisaTrocarSenha) {
+        this.precisaTrocarSenha = precisaTrocarSenha;
+    }
 
     public Long getId() {
         return id;

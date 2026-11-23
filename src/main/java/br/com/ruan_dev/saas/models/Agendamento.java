@@ -1,6 +1,7 @@
 package br.com.ruan_dev.saas.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
@@ -15,6 +16,8 @@ public class Agendamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // A empresa não entra nem sai do JSON: vem sempre do token.
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;

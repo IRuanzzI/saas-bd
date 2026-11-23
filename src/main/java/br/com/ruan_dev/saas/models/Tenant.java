@@ -1,5 +1,8 @@
 package br.com.ruan_dev.saas.models;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
+
 //A EMPRESA
 
 @Entity
@@ -12,9 +15,17 @@ public class Tenant {
 
     private String nome_fantasia;
 
+    // CNPJ/CPF: não pode haver duas empresas com o mesmo documento.
+    @Column(unique = true)
     private String documento;
 
     private Boolean ativo = false;
+
+    // Plano contratado (texto livre: TESTE, BASICO, PROFISSIONAL...).
+    private String plano;
+
+    // Último dia de acesso. Depois dele a empresa é tratada como vencida.
+    private LocalDate venceEm;
 
     public Long getId() {
         return id;
@@ -46,5 +57,21 @@ public class Tenant {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public String getPlano() {
+        return plano;
+    }
+
+    public void setPlano(String plano) {
+        this.plano = plano;
+    }
+
+    public LocalDate getVenceEm() {
+        return venceEm;
+    }
+
+    public void setVenceEm(LocalDate venceEm) {
+        this.venceEm = venceEm;
     }
 }

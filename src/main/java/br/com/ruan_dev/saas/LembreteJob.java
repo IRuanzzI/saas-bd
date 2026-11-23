@@ -2,11 +2,11 @@ package br.com.ruan_dev.saas;
 
 import br.com.ruan_dev.saas.models.Agendamento;
 import br.com.ruan_dev.saas.repositories.AgendamentoRepository;
+import br.com.ruan_dev.saas.services.MensagemWhatsappService;
 import br.com.ruan_dev.saas.services.WhatsAppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +20,9 @@ public class LembreteJob {
 
     @Autowired
     private WhatsAppService whatsAppService;
+
+    @Autowired
+    private MensagemWhatsappService mensagemWhatsappService;
 
     //@Scheduled(cron = "0 0/30 * * * *")
     @Scheduled(cron = "0 0/5 * * * *")
@@ -38,17 +41,24 @@ public class LembreteJob {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
                 String dataFormatada = LocalDateTime.parse(agendamento.getData_hora_inicio()).format(formatter);
-                String nomeInstancia = "tenant_" + agendamento.getTenant().getId();
+                String nomeInstancia = WhatsAppService.nomeInstancia(agendamento.getTenant().getId());
 
                 String mensagem = "Lembrete: Olá " + agendamento.getCliente().getNome() +
                         ", você tem um agendamento (" + dataFormatada + "). " +
                         "Responda 'S' para confirmar ou 'N' para cancelar.";
 
-                whatsAppService.enviarMensagemTexto(
+                String idMensagem = whatsAppService.enviarMensagemTexto(
                         nomeInstancia,
                         agendamento.getCliente().getTelefone(),
                         mensagem
                 );
+                // O ID permite reconhecer o cliente se ele responder citando este lembrete.
+                mensagemWhatsappService.registrarEnvio(
+                        agendamento.getTenant().getId(),
+                        idMensagem,
+                        agendamento.getId(),
+                        agendamento.getCliente().getId(),
+                        MensagemWhatsappService.LEMBRETE);
                 System.out.println("Lembrete enviado para Agendamento ID: " + agendamento.getId());
 
             } catch (Exception e) {
@@ -60,8 +70,5 @@ public class LembreteJob {
             }
         }
     }
-
-
-
 
 }

@@ -49,4 +49,10 @@ public class AgendamentoController {
         return agendamentoService.criarAgendamento(agendamento);
     }
 
+    @GetMapping("/cliente")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'ADMIN', 'USUARIO')")
+    public List<Agendamento> listarAgendamentosPorCliente(@RequestParam Long clienteId) {
+        return agendamentoService.listarAgendamentosPorCliente(clienteId);
+    }
+
 }
